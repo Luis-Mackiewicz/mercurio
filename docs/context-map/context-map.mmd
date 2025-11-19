@@ -1,0 +1,56 @@
+graph TD
+    Financeiro[Financeiro]
+    RH[RH / Funcionários e Contratados]
+    Fornecedores[Fornecedores]
+    Servicos[Serviços]
+    Mensageria[Microsserviço de Mensageria]
+
+    %% Subdomínios Financeiro
+    ContasAPagar[Contas a Pagar]
+    ContasAReceber[Contas a Receber]
+    Relatorios[Relatórios Financeiros]
+    TotalGasto[Total Gasto / Recebido, Lucro/Prejuízo]
+
+    %% Subdomínios RH
+    Cadastro[Cadastro]
+    Consulta[Consulta]
+    Exclusao[Exclusão]
+
+    %% Subdomínios Fornecedores
+    CadastroFornecedor[Cadastro]
+    IntegracaoFinanceiro[Integração com Financeiro]
+
+    %% Subdomínios Serviços
+    RegistroServico[Registro de Serviço]
+    StatusServico[Acompanhamento de Status]
+    Faturamento[Faturamento Vinculado]
+
+    %% Relações Financeiro
+    Financeiro --> ContasAPagar
+    Financeiro --> ContasAReceber
+    Financeiro --> Relatorios
+    Financeiro --> TotalGasto
+
+    %% Relações RH
+    RH --> Cadastro
+    RH --> Consulta
+    RH --> Exclusao
+    RH --> Financeiro
+
+    %% Relações Fornecedores
+    Fornecedores --> CadastroFornecedor
+    Fornecedores --> IntegracaoFinanceiro
+    Fornecedores --> Financeiro
+
+    %% Relações Serviços
+    Servicos --> RegistroServico
+    Servicos --> StatusServico
+    Servicos --> Faturamento
+    Servicos --> Financeiro
+    Servicos --> RH
+
+    %% Mensageria
+    Mensageria --> Financeiro
+    Mensageria --> RH
+    Mensageria --> Fornecedores
+    Mensageria --> Servicos
