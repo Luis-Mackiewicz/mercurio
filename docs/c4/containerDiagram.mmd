@@ -1,0 +1,28 @@
+%%{init: {'theme': 'default'}}%%
+C4Container
+    title Diagrama de Containers - Mercurio ERP System
+
+    Person(admin, "Administrador", "Usuário que opera o ERP através do navegador.")
+
+    System_Boundary(erp_sys, "Mercurio ERP") {
+
+        Container(web, "Frontend - Next.js", "Next.js", "Interface web para todos os módulos do ERP.")
+        Container(api, "Backend - NestJS (Monólito)", "NestJS", "API principal com regras de negócio e módulos do ERP.")
+
+        ContainerDb(db_oper, "Banco Operacional", "PostgreSQL", "Armazena os dados transacionais (OLTP).")
+        ContainerDb(db_analitico, "Banco Analítico", "PostgreSQL", "Armazena dados analíticos para relatórios (OLAP).")
+
+        Container(fila, "Fila de Mensageria", "Redis Pub/Sub", "Canal assíncrono para eventos publicados pelo ERP.")
+
+        Container(micro_go, "Microserviço Go", "Go", "Processamento assíncrono, ETL e atualização analítica.")
+    }
+
+    Rel(admin, web, "Acessa via navegador")
+    Rel(web, api, "HTTP/REST/GraphQL")
+
+    Rel(api, db_oper, "Leitura/Escrita")
+    Rel(api, fila, "Publica eventos")
+
+    Rel(fila, micro_go, "Entrega eventos")
+    Rel(micro_go, db_analitico, "Atualiza dados analíticos")
+    Rel(api, db_analitico, "Consulta relatórios")

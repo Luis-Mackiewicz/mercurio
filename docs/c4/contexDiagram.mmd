@@ -1,0 +1,32 @@
+%%{init: {'theme': 'default'}}%%
+C4Context
+    title Diagrama de Contexto - Mercurio ERP System
+
+    Person(admin, "Administrador", "Gerencia cadastros, serviços, financeiro, fornecedores, clientes e relatórios.")
+
+    Boundary(m01, "Mercurio ERP") {
+
+        System(erp, "Mercurio ERP", "Monólito (NestJS + Next.js) que concentra toda a gestão empresarial.")
+
+        Boundary(m02, "Serviços Internos") {
+
+            SystemDb(db_oper, "Banco Operacional", "PostgreSQL - Banco de dados principal (OLTP).")
+
+            SystemDb(db_analitico, "Banco Analítico", "PostgreSQL - Armazena dados preparados para relatórios e métricas (OLAP).")
+
+            System(micro_go, "Microserviço Go", "Executa tarefas assíncronas, consolidação e processamento de dados.")
+
+            SystemQueue(fila, "Fila de Mensageria", "Redis Pub/Sub ou RabbitMQ para eventos internos.")
+        }
+    }
+
+    Rel(admin, erp, "Utiliza o sistema diariamente")
+
+    Rel(erp, db_oper, "Le e grava dados")
+    Rel(erp, fila, "Publica eventos", "pub")
+
+    Rel(fila, micro_go, "Entrega eventos", "sub")
+    Rel(micro_go, db_analitico, "Atualiza dados analíticos")
+    Rel(micro_go, db_oper, "Consulta dados para processar")
+
+    Rel(erp, db_analitico, "Consulta indicadores e relatórios")
