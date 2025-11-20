@@ -1,3 +1,9 @@
+# Mercurio System
+
+O **Mercurio System** é um website de ERP criado para facilitar o gerenciamento de negócios empresariais.
+
+## Estrutura do Projeto
+
 /mercurio
 │
 ├── /apps/ # Aplicações
@@ -46,3 +52,16 @@
 │ └── swagger.yaml
 │
 └── /scripts/ # Scripts utilitários
+
+markdown
+Copiar código
+
+## Descrição das Pastas
+
+- **/apps**: Contém todas as aplicações do sistema, incluindo o backend, frontend e microsserviço em Go.
+- **/docs**: Documentação do projeto, incluindo ADRs, diagramas C4, context map, runbooks, modelos de domínio, cenários de qualidade e segurança.
+- **/infra**: Configurações de infraestrutura, pipeline CI/CD e especificação do Swagger.
+
+---
+
+> Estrutura organizada para facilitar manutenção, escalabilidade e referência rápida.
