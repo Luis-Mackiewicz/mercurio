@@ -1,0 +1,395 @@
+openapi: 3.1.0
+info:
+  title: Mercurio ERP
+  description: API para gerenciamento de clientes, serviços e pagamentos.
+  version: "1.0.0"
+
+servers:
+  - url: https://api.seuerp.com
+    description: Servidor de produção
+
+tags:
+  - name: Auth
+    description: Endpoints de login e registro
+  - name: Clientes
+    description: Gerenciamento de clientes
+  - name: Serviços
+    description: Gerenciamento de serviços
+  - name: Pagamentos
+    description: Gerenciamento de pagamentos
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Registro de novo usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Usuário registrado com sucesso
+        "400":
+          description: Dados inválidos
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login do usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login bem-sucedido, retorna token JWT
+        "401":
+          description: Credenciais inválidas
+
+  /clientes:
+    get:
+      tags:
+        - Clientes
+      summary: Listar clientes
+      responses:
+        "200":
+          description: Lista de clientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Cliente"
+    post:
+      tags:
+        - Clientes
+      summary: Criar novo cliente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Cliente"
+      responses:
+        "201":
+          description: Cliente criado com sucesso
+
+  /clientes/{clienteId}:
+    get:
+      tags:
+        - Clientes
+      summary: Obter detalhes de um cliente
+      parameters:
+        - name: clienteId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Cliente encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cliente"
+        "404":
+          description: Cliente não encontrado
+
+  /servicos:
+    get:
+      tags:
+        - Serviços
+      summary: Listar serviços
+      responses:
+        "200":
+          description: Lista de serviços
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Servico"
+    post:
+      tags:
+        - Serviços
+      summary: Criar novo serviço
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Servico"
+      responses:
+        "201":
+          description: Serviço criado com sucesso
+
+  /servicos/{servicoId}:
+    get:
+      tags:
+        - Serviços
+      summary: Obter detalhes de um serviço
+      parameters:
+        - name: servicoId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Serviço encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Servico"
+        "404":
+          description: Serviço não encontrado
+
+  /pagamentos:
+    get:
+      tags:
+        - Pagamentos
+      summary: Listar pagamentos
+      responses:
+        "200":
+          description: Lista de pagamentos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pagamento"
+    post:
+      tags:
+        - Pagamentos
+      summary: Registrar pagamento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Pagamento"
+      responses:
+        "201":
+          description: Pagamento registrado com sucesso
+
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - nome
+        - email
+        - senha
+      properties:
+        nome:
+          type: string
+        email:
+          type: string
+          format: email
+        senha:
+          type: string
+          format: password
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - senha
+      properties:
+        email:
+          type: string
+          format: email
+        senha:
+          type: string
+          format: password
+
+    Cliente:
+      type: object
+      required:
+        - nomeCompleto
+        - cpfCnpj
+        - telefone
+        - email
+      properties:
+        id:
+          type: string
+          format: uuid
+        nomeCompleto:
+          type: string
+        cpfCnpj:
+          type: string
+        razaoSocial:
+          type: string
+        telefone:
+          type: string
+        email:
+          type: string
+        endereco:
+          $ref: "#/components/schemas/Endereco"
+        tipoCliente:
+          $ref: "#/components/schemas/TipoCliente"
+
+    Servico:
+      type: object
+      required:
+        - nome
+        - categoria
+        - clienteId
+      properties:
+        id:
+          type: string
+          format: uuid
+        nome:
+          type: string
+        categoria:
+          type: string
+        quantidade:
+          type: number
+        descricao:
+          type: string
+        escopo:
+          type: string
+        clienteId:
+          type: string
+          format: uuid
+        localExecucao:
+          $ref: "#/components/schemas/Endereco"
+        prazo:
+          $ref: "#/components/schemas/Prazo"
+        valor:
+          $ref: "#/components/schemas/Valor"
+        status:
+          $ref: "#/components/schemas/StatusServico"
+        anexos:
+          type: array
+          items:
+            $ref: "#/components/schemas/Anexo"
+
+    Pagamento:
+      type: object
+      required:
+        - servicoId
+        - formaPagamento
+        - statusPagamento
+      properties:
+        id:
+          type: string
+          format: uuid
+        servicoId:
+          type: string
+          format: uuid
+        formaPagamento:
+          $ref: "#/components/schemas/FormaPagamento"
+        statusPagamento:
+          $ref: "#/components/schemas/StatusPagamento"
+        dataVencimento:
+          type: string
+          format: date
+        dataPagamento:
+          type: string
+          format: date
+        comprovante:
+          type: string
+
+    Endereco:
+      type: object
+      properties:
+        rua:
+          type: string
+        numero:
+          type: string
+        bairro:
+          type: string
+        cidade:
+          type: string
+        estado:
+          type: string
+        cep:
+          type: string
+        referencia:
+          type: string
+
+    TipoCliente:
+      type: string
+      enum: [Residencial, Comercial, Industrial]
+
+    Prazo:
+      type: object
+      properties:
+        dataInicioPrevista:
+          type: string
+          format: date
+        duracaoPrevista:
+          type: number
+        dataConclusaoReal:
+          type: string
+          format: date
+
+    Valor:
+      type: object
+      properties:
+        valorEstimado:
+          type: number
+        valorFinal:
+          type: number
+        custos:
+          type: number
+        lucroAutomatico:
+          type: number
+        formaCobranca:
+          type: string
+          enum: [Por hora, Por serviço, Por metro quadrado, Por diária]
+        materiaisInclusos:
+          type: boolean
+        quemForneceMateriais:
+          type: string
+          enum: [Cliente, Empresa]
+
+    StatusServico:
+      type: string
+      enum:
+        [
+          Pendente,
+          Orçamento enviado,
+          Não aprovado,
+          Aprovado,
+          Em execução,
+          Pausado,
+          Concluído,
+          Cancelado,
+        ]
+
+    FormaPagamento:
+      type: string
+      enum:
+        [
+          Pix,
+          Dinheiro,
+          Cartão crédito,
+          Cartão débito,
+          Transferência,
+          Boleto,
+          Outro,
+        ]
+
+    StatusPagamento:
+      type: string
+      enum: [Não pago, Pago parcialmente, Pago, A receber, Atrasado]
+
+    Anexo:
+      type: object
+      properties:
+        url:
+          type: string
+        tipo:
+          type: string
+          enum: [Foto, Documento]
+        descricao:
+          type: string
