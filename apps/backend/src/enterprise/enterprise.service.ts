@@ -1,26 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { CreateEnterpriseDto } from './dto/create-enterprise.dto';
-import { UpdateEnterpriseDto } from './dto/update-enterprise.dto';
+import type { CreateEnterpriseDTO } from './dto/create-enterprise.dto';
+import type { UpdateEnterpriseDTO } from './dto/update-enterprise.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class EnterpriseService {
-  create(createEnterpriseDto: CreateEnterpriseDto) {
-    return 'This action adds a new enterprise';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createEnterpriseDto: CreateEnterpriseDTO) {
+    return this.prisma.enterprise.create({
+      data: {
+        ...createEnterpriseDto,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all enterprise`;
+  async findAll() {
+    return this.prisma.enterprise.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} enterprise`;
+  async findOne(id: string) {
+    return this.prisma.enterprise.findUnique({
+      where: { id },
+    });
   }
 
-  update(id: number, updateEnterpriseDto: UpdateEnterpriseDto) {
-    return `This action updates a #${id} enterprise`;
+  async update(id: string, updateEnterpriseDto: UpdateEnterpriseDTO) {
+    return this.prisma.enterprise.update({
+      where: { id },
+      data: updateEnterpriseDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} enterprise`;
+  async remove(id: string) {
+    return this.prisma.enterprise.delete({
+      where: { id },
+    });
   }
 }
