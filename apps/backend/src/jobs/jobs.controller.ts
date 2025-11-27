@@ -1,7 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { JobsService } from './jobs.service';
-import { CreateJobDto } from './dto/create-job.dto';
-import { UpdateJobDto } from './dto/update-job.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
+import type { JobsService } from './jobs.service';
+import type { CreateJobDto } from './dto/create-job.dto';
+import type { UpdateJobDto } from './dto/update-job.dto';
 
 @Controller('jobs')
 export class JobsController {
