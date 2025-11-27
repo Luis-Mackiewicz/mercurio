@@ -60,6 +60,23 @@ export class UsersService {
     });
   }
 
+  async findByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        passwordHash: true,
+        profileImage: true,
+        bannerImage: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -92,11 +109,28 @@ export class UsersService {
       throw new NotFoundException(`Usuário com ID ${id} não encontrado.`);
     }
 
-    const updateData: Record<string, any> = { ...updateUserDto };
+    const { password, ...otherUpdateData } = updateUserDto as any;
+
+    // 2. Preparar os dados para atualização (remover chaves undefined)
+    const updateData: Record<string, any> = { ...otherUpdateData };
 
     Object.keys(updateData).forEach(
       (key) => updateData[key] === undefined && delete updateData[key],
     );
+
+    if (updateData.email && updateData.email !== existingUser.email) {
+      const emailConflict = await this.prisma.user.findUnique({
+        where: { email: updateData.email },
+      });
+      if (emailConflict) {
+        throw new ConflictException('O novo email já está em uso.');
+      }
+    }
+
+    if (password) {
+      const passwordHash = await bcrypt.hash(password, 10);
+      updateData.passwordHash = passwordHash;
+    }
 
     const user = await this.prisma.user.update({
       where: { id },
