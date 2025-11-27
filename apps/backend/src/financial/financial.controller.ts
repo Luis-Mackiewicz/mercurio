@@ -1,7 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { FinancialService } from './financial.service';
-import { CreateFinancialDto } from './dto/create-financial.dto';
-import { UpdateFinancialDto } from './dto/update-financial.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
+import type { FinancialService } from './financial.service';
+import type { CreateFinancialDto } from './dto/create-financial.dto';
+import type { UpdateFinancialDto } from './dto/update-financial.dto';
 
 @Controller('financial')
 export class FinancialController {
@@ -23,7 +31,10 @@ export class FinancialController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFinancialDto: UpdateFinancialDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateFinancialDto: UpdateFinancialDto,
+  ) {
     return this.financialService.update(+id, updateFinancialDto);
   }
 
