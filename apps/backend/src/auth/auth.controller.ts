@@ -1,31 +1,56 @@
-// auth.controller.ts
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginUserDto } from './dto/login-user.dto'; // Importa o DTO de login
-import { ZodValidationPipe } from '../pipes/zod-validation.pipe'; // Assumindo que você tem um ZodValidationPipe
-import { loginUserSchema } from './dto/login-user.dto';
+
+import { CreateUserDto, createUserSchema } from '../users/dto/create-user.dto';
+import { LoginUserDto, loginUserSchema } from './dto/login-user.dto';
+
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipes';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('login')
-  @HttpCode(HttpStatus.OK) // O login deve retornar status 200 OK
-  async login(
-    // Aplica o pipe de validação Zod no DTO
-    @Body(new ZodValidationPipe(loginUserSchema)) loginUserDto: LoginUserDto,
+  // =====================================
+  //  REGISTER
+  // =====================================
+  @Post('register')
+  async register(
+    @Body(new ZodValidationPipe(createUserSchema))
+    dto: CreateUserDto,
   ) {
-    const user = await this.authService.validateUser(
-      loginUserDto.email,
-      loginUserDto.password,
-    );
+    return this.authService.register(dto);
+  }
 
-    if (!user) {
-      throw new UnauthorizedException(
-        'Credenciais inválidas (email ou senha).',
-      );
-    }
+  // =====================================
+  //  LOGIN
+  // =====================================
+  @Post('login')
+  async login(
+    @Body(new ZodValidationPipe(loginUserSchema))
+    dto: LoginUserDto,
+  ) {
+    return this.authService.login(dto);
+  }
 
-    return this.authService.login(user);
+  // =====================================
+  //  REFRESH TOKEN
+  // =====================================
+  @UseGuards(JwtRefreshGuard)
+  @Post('refresh')
+  async refresh(@Req() req) {
+    const user = req.user;
+    const refreshToken = req.refreshToken;
+    return this.authService.refreshTokens(user.sub, refreshToken);
+  }
+
+  // =====================================
+  //  LOGOUT
+  // =====================================
+  @UseGuards(JwtRefreshGuard)
+  @Post('logout')
+  async logout(@Req() req) {
+    const user = req.user;
+    return this.authService.logout(user.sub);
   }
 }
