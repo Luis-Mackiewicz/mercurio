@@ -1,4 +1,6 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateJobDto } from './create-job.dto';
+import { z } from 'zod';
+import { createJobSchema } from './create-job.dto';
 
-export class UpdateJobDto extends PartialType(CreateJobDto) {}
+export const updateJobSchema = createJobSchema.partial();
+
+export type UpdateJobDto = z.infer<typeof updateJobSchema>;
