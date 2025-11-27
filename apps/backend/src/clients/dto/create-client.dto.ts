@@ -28,6 +28,6 @@ export const createClientSchema = z.object({
     .optional(),
 
   enterpriseId: z.string().uuid('ID da empresa deve ser um UUID válido.'),
-});
+} as const);
 
 export type CreateClientDto = z.infer<typeof createClientSchema>;
