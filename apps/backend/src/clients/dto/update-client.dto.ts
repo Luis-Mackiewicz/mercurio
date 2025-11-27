@@ -1,4 +1,10 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateClientDto } from './create-client.dto';
+import { z } from 'zod';
+import { createClientSchema } from './create-client.dto';
 
-export class UpdateClientDto extends PartialType(CreateClientDto) {}
+export const updateClientSchema = createClientSchema.partial().omit({
+  enterpriseId: true,
+
+  cpfCnpj: true,
+});
+
+export type UpdateClientDto = z.infer<typeof updateClientSchema>;
