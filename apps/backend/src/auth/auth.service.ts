@@ -7,9 +7,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import {} from '../../generated/prisma/client';
-
+import { User } from '../../generated/prisma/client';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+
+type SafeUser = Omit<User, 'passwordHash' | 'refreshToken'>;
 
 @Injectable()
 export class AuthService {
@@ -137,8 +139,8 @@ export class AuthService {
     });
   }
 
-  excludePassword(user: any) {
-    const { passwordHash, refreshToken, ...u } = user;
-    return u;
+  excludePassword(user: User): SafeUser {
+    const { passwordHash, refreshToken, ...clean } = user;
+    return clean;
   }
 }
