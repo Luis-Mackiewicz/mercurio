@@ -1,26 +1,59 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+// auth.service.ts
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { CreateUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
+
+  // REGISTER
+  async register(data: CreateUserDto) {
+    const hashed = await bcrypt.hash(data.password, 10);
+
+    const user = await this.usersService.create({
+      ...data,
+      password: hashed,
+    });
+
+    return this.generateTokens(user.id, user.email);
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  // LOGIN
+  async login(data: LoginUserDto) {
+    const user = await this.usersService.findByEmail(data.email);
+
+    if (!user) {
+      throw new UnauthorizedException('Credenciais inválidas.');
+    }
+
+    const valid = await bcrypt.compare(data.password, user.passwordHash);
+
+    if (!valid) {
+      throw new UnauthorizedException('Credenciais inválidas.');
+    }
+
+    return this.generateTokens(user.id, user.email);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+  // TOKENS
+  private generateTokens(userId: string, email: string) {
+    const payload = { sub: userId, email };
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: '15m',
+    });
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: '7d',
+    });
+
+    return { accessToken, refreshToken };
   }
 }
