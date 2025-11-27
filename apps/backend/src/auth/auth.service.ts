@@ -98,9 +98,6 @@ export class AuthService {
     return this.excludePassword(user);
   }
 
-  // =====================================
-  //  REFRESH TOKEN
-  // =====================================
   async refreshTokens(userId: string, refreshToken: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
